@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -226,6 +226,12 @@ vim.keymap.set('n', '<C-S-k>', '<cmd>Treewalker SwapUp<cr>', { silent = true })
 vim.keymap.set('n', '<C-S-j>', '<cmd>Treewalker SwapDown<cr>', { silent = true })
 vim.keymap.set('n', '<C-S-h>', '<cmd>Treewalker SwapLeft<cr>', { silent = true })
 vim.keymap.set('n', '<C-S-l>', '<cmd>Treewalker SwapRight<cr>', { silent = true })
+
+-- Moving the currrent selected up or down
+vim.keymap.set('n', '<ALT-j>', ':m .+1<CR>==', { noremap = true, silent = true })
+vim.keymap.set('n', '<ALT-k>', ':m .-2<CR>==', { noremap = true, silent = true })
+vim.keymap.set('v', '<ALT-j>', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
+vim.keymap.set('v', '<ALT-k>', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
 
 -- [[ Configure and install plugins ]]
 --
@@ -628,7 +634,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -677,6 +683,8 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        ensure_installed = { 'clangd' },
+        automatic_installation = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -725,6 +733,8 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        -- c = { 'clang-format' },
+
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -754,12 +764,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -914,7 +924,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'javascript' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -957,6 +967,13 @@ require('lazy').setup({
       -- (see :h highlight-group for options)
       highlight_group = 'CursorLine',
     },
+  },
+  {
+    'https://git.sr.ht/~nedia/auto-format.nvim',
+    event = 'BufWinEnter',
+    config = function()
+      require('auto-format').setup()
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
