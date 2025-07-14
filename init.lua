@@ -184,10 +184,11 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+-- NOTE: Disabled due to Treewalker
+-- vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+-- vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+-- vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+-- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -228,10 +229,29 @@ vim.keymap.set('n', '<C-S-h>', '<cmd>Treewalker SwapLeft<cr>', { silent = true }
 vim.keymap.set('n', '<C-S-l>', '<cmd>Treewalker SwapRight<cr>', { silent = true })
 
 -- Moving the currrent selected up or down
-vim.keymap.set('n', '<ALT-j>', ':m .+1<CR>==', { noremap = true, silent = true })
-vim.keymap.set('n', '<ALT-k>', ':m .-2<CR>==', { noremap = true, silent = true })
-vim.keymap.set('v', '<ALT-j>', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
-vim.keymap.set('v', '<ALT-k>', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
+-- NOTE: ‹ means ALT+j. ∆ means ALT+k.
+-- Could also have use the plugin called macaltkey to hide these special characters.
+vim.keymap.set('n', '‹', ':m .+1<CR>==', { noremap = true, silent = true })
+vim.keymap.set('n', '∆', ':m .-2<CR>==', { noremap = true, silent = true })
+vim.keymap.set('v', '‹', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
+vim.keymap.set('v', '∆', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
+
+-- Toggle/focus/close logic for <leader>e
+vim.keymap.set('n', '<leader>e', function()
+  local view = require 'nvim-tree.view'
+  if view.is_visible() then
+    if vim.fn.win_getid() == view.get_winnr() then
+      -- Tree is focused, close it
+      vim.cmd 'NvimTreeClose'
+    else
+      -- Tree is open, but not focused → focus it
+      vim.cmd 'NvimTreeFocus'
+    end
+  else
+    -- Tree is not open → open it
+    vim.cmd 'NvimTreeOpen'
+  end
+end, { desc = 'Toggle/focus NvimTree' })
 
 -- [[ Configure and install plugins ]]
 --
@@ -431,6 +451,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
+      -- My overwrite
+      vim.keymap.set('n', '<leader>r', '<cmd>Telescope oldfiles<CR>', { desc = '[R]ecent files' })
+      vim.keymap.set('n', '<leader>?', function()
+        require('which-key').show()
+      end, { desc = 'Show WhichKey (all mappings)' })
+
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -565,6 +591,8 @@ require('lazy').setup({
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+          vim.keymap.set('i', '<C-space>', vim.lsp.buf.completion, { buffer = event.buf, desc = 'LSP: Completion' })
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
@@ -967,6 +995,22 @@ require('lazy').setup({
       -- (see :h highlight-group for options)
       highlight_group = 'CursorLine',
     },
+  },
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {
+        filters = {
+          dotfiles = false,
+          git_ignored = false,
+        },
+      }
+    end,
   },
   {
     'https://git.sr.ht/~nedia/auto-format.nvim',
