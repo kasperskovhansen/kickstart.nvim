@@ -3,7 +3,7 @@
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
-========                                    .-----.          ========
+========                                    .-----.         ========
 ========         .----------------------.   | === |          ========
 ========         |.-""""""""""""""""""-.|   |-----|          ========
 ========         ||                    ||   | === |          ========
@@ -170,7 +170,7 @@ vim.opt.shiftwidth = 2
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -200,6 +200,9 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 vim.keymap.set('n', '<F3>', ':w<CR>')
 vim.keymap.set('i', '<F3>', '<ESC>:w<CR>a')
 
+vim.keymap.set('n', '<C-6>', '<C-^>', { desc = 'Go to previous buffer' })
+vim.keymap.set('n', '<C-y>', '<C-^>', { desc = 'Go to previous buffer' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -227,16 +230,16 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 -- movement
-vim.keymap.set({ 'n', 'v' }, '<C-k>', '<cmd>Treewalker Up<cr>', { silent = true })
-vim.keymap.set({ 'n', 'v' }, '<C-j>', '<cmd>Treewalker Down<cr>', { silent = true })
-vim.keymap.set({ 'n', 'v' }, '<C-h>', '<cmd>Treewalker Left<cr>', { silent = true })
-vim.keymap.set({ 'n', 'v' }, '<C-l>', '<cmd>Treewalker Right<cr>', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-S-k>', '<cmd>Treewalker Up<cr>', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-S-j>', '<cmd>Treewalker Down<cr>', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-S-h>', '<cmd>Treewalker Left<cr>', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-S-l>', '<cmd>Treewalker Right<cr>', { silent = true })
 
 -- swapping
-vim.keymap.set('n', '<C-S-k>', '<cmd>Treewalker SwapUp<cr>', { silent = true })
-vim.keymap.set('n', '<C-S-j>', '<cmd>Treewalker SwapDown<cr>', { silent = true })
-vim.keymap.set('n', '<C-S-h>', '<cmd>Treewalker SwapLeft<cr>', { silent = true })
-vim.keymap.set('n', '<C-S-l>', '<cmd>Treewalker SwapRight<cr>', { silent = true })
+-- vim.keymap.set('n', '<C-S-k>', '<cmd>Treewalker SwapUp<cr>', { silent = true })
+-- vim.keymap.set('n', '<C-S-j>', '<cmd>Treewalker SwapDown<cr>', { silent = true })
+-- vim.keymap.set('n', '<C-S-h>', '<cmd>Treewalker SwapLeft<cr>', { silent = true })
+-- vim.keymap.set('n', '<C-S-l>', '<cmd>Treewalker SwapRight<cr>', { silent = true })
 
 -- Moving the currrent selected up or down
 -- NOTE: ‹ means ALT+j. ∆ means ALT+k.
@@ -262,6 +265,26 @@ vim.keymap.set('n', '<leader>e', function()
     vim.cmd 'NvimTreeOpen'
   end
 end, { desc = 'Toggle/focus NvimTree' })
+
+vim.keymap.set('n', '<leader>q', function()
+  if type(vim.diagnostic.config().virtual_lines) == 'boolean' then
+    vim.diagnostic.config { virtual_lines = { current_line = true } }
+
+    vim.api.nvim_create_autocmd('CursorMoved', {
+      group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
+      callback = function()
+        vim.diagnostic.config { virtual_lines = false }
+        return true
+      end,
+    })
+  else
+    vim.diagnostic.config { virtual_lines = false }
+  end
+end, { desc = 'Toggle virtual text diagnostics' })
+
+vim.keymap.set('n', '<leader>k', function()
+  vim.diagnostic.config { virtual_text = not vim.diagnostic.config().virtual_text }
+end, { desc = 'Toggle diagnostics for current line' })
 
 -- [[ Configure and install plugins ]]
 --
@@ -317,7 +340,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -363,7 +386,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -402,7 +425,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -514,7 +537,7 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -561,6 +584,15 @@ require('lazy').setup({
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
+
+          map('K', function()
+            vim.lsp.buf.hover {
+              border = 'single',
+              -- max_height = 20,
+              -- max_width = 130,
+              close_events = { 'CursorMoved', 'BufLeave', 'WinLeave', 'LSPDetach' },
+            }
+          end, 'Show tooltip', { 'n' })
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
@@ -820,7 +852,6 @@ require('lazy').setup({
               require('luasnip.loaders.from_vscode').lazy_load()
               -- Load custom snippets
               local ls = require 'luasnip'
-              vim.notify 'Test'
 
               -- Load from Lua snippet files in ~/.config/nvim/lua/snippets/
               require('luasnip.loaders.from_lua').load {
@@ -1082,6 +1113,9 @@ require('lazy').setup({
     },
     config = function()
       require('nvim-tree').setup {
+        update_focused_file = {
+          enable = true,
+        },
         filters = {
           dotfiles = false,
           git_ignored = false,
@@ -1126,14 +1160,24 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
-  {
-    'mg979/vim-visual-multi',
-    branch = 'master',
-    init = function()
-      -- Optional: custom keymaps
-      vim.g.VM_leader = '\\'
-    end,
-  },
+  -- {
+  --   'mg979/vim-visual-multi',
+  --   branch = 'master',
+  --   init = function()
+  --     -- Optional: custom keymaps
+  --     vim.g.VM_leader = '\\'
+  --     -- Custom keybindings
+  --     -- vim.g.VM_maps = {
+  --     --   ['Add Cursor Down'] = 'C-j', -- instead of <C-Down>
+  --     --   ['Add Cursor Up'] = 'C-l', -- instead of <C-Up>
+  --     -- }
+  --   end,
+  --   config = function()
+  --     -- vim.keymap.set('v', '<C-k>', '<Plug>(VM-Add-Cursor-Up)')
+  --     vim.keymap.set('v', '<C-j>', '<Plug>(VM-Add-Cursor-Down)')
+  --     vim.keymap.set('n', '<C-k>', '<Plug>(VM-Add-Cursor-At-Pos)')
+  --   end,
+  -- },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
