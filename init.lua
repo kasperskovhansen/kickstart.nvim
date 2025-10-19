@@ -171,7 +171,7 @@ vim.opt.shiftwidth = 2
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
--- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -267,41 +267,10 @@ vim.keymap.set('n', '<leader>e', function()
   end
 end, { desc = 'Toggle/focus NvimTree' })
 
--- vim.keymap.set('n', '<leader>q', function()
---   if type(vim.diagnostic.config().virtual_lines) == 'boolean' then
---     -- vim.diagnostic.config { virtual_lines = { current_line = true } }
---     vim.diagnostic.config {
---       virtual_text = {
---         prefix = '●', -- keep a little sign so you see there’s an issue
---       },
---       virtual_lines = false, -- don't clutter with full messages inline
---       float = {
---         focusable = true,
---         style = 'minimal',
---         border = 'rounded',
---         source = true, -- show "eslint", "pyright", etc.
---         header = '',
---         prefix = '',   -- this way you see the arrows in the buffer instead
---         wrap = true,   -- <-- ensures float wraps instead of cutting off
---       },
---       severity_sort = true,
---     }
---
---     vim.api.nvim_create_autocmd('CursorMoved', {
---       group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
---       callback = function()
---         vim.diagnostic.config { virtual_lines = false }
---         return true
---       end,
---     })
---   else
---     vim.diagnostic.config { virtual_lines = false }
---   end
--- end, { desc = 'Toggle virtual text diagnostics' })
---
--- vim.keymap.set('n', '<leader>k', function()
---   vim.diagnostic.config { virtual_text = not vim.diagnostic.config().virtual_text }
--- end, { desc = 'Toggle diagnostics for current line' })
+vim.keymap.set('n', '<leader>k', function()
+  local diag = require 'tiny-inline-diagnostic'
+  diag.toggle()
+end, { desc = 'Toggle diagnostics' })
 
 -- [[ Configure and install plugins ]]
 --
