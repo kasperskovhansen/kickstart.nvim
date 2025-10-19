@@ -267,25 +267,41 @@ vim.keymap.set('n', '<leader>e', function()
   end
 end, { desc = 'Toggle/focus NvimTree' })
 
-vim.keymap.set('n', '<leader>q', function()
-  if type(vim.diagnostic.config().virtual_lines) == 'boolean' then
-    vim.diagnostic.config { virtual_lines = { current_line = true } }
-
-    vim.api.nvim_create_autocmd('CursorMoved', {
-      group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
-      callback = function()
-        vim.diagnostic.config { virtual_lines = false }
-        return true
-      end,
-    })
-  else
-    vim.diagnostic.config { virtual_lines = false }
-  end
-end, { desc = 'Toggle virtual text diagnostics' })
-
-vim.keymap.set('n', '<leader>k', function()
-  vim.diagnostic.config { virtual_text = not vim.diagnostic.config().virtual_text }
-end, { desc = 'Toggle diagnostics for current line' })
+-- vim.keymap.set('n', '<leader>q', function()
+--   if type(vim.diagnostic.config().virtual_lines) == 'boolean' then
+--     -- vim.diagnostic.config { virtual_lines = { current_line = true } }
+--     vim.diagnostic.config {
+--       virtual_text = {
+--         prefix = '●', -- keep a little sign so you see there’s an issue
+--       },
+--       virtual_lines = false, -- don't clutter with full messages inline
+--       float = {
+--         focusable = true,
+--         style = 'minimal',
+--         border = 'rounded',
+--         source = true, -- show "eslint", "pyright", etc.
+--         header = '',
+--         prefix = '',   -- this way you see the arrows in the buffer instead
+--         wrap = true,   -- <-- ensures float wraps instead of cutting off
+--       },
+--       severity_sort = true,
+--     }
+--
+--     vim.api.nvim_create_autocmd('CursorMoved', {
+--       group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
+--       callback = function()
+--         vim.diagnostic.config { virtual_lines = false }
+--         return true
+--       end,
+--     })
+--   else
+--     vim.diagnostic.config { virtual_lines = false }
+--   end
+-- end, { desc = 'Toggle virtual text diagnostics' })
+--
+-- vim.keymap.set('n', '<leader>k', function()
+--   vim.diagnostic.config { virtual_text = not vim.diagnostic.config().virtual_text }
+-- end, { desc = 'Toggle diagnostics for current line' })
 
 -- [[ Configure and install plugins ]]
 --
@@ -325,6 +341,45 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
     },
+  },
+  {
+    'rachartier/tiny-inline-diagnostic.nvim',
+    event = 'VeryLazy',
+    priority = 1000,
+    config = function()
+      require('tiny-inline-diagnostic').setup {
+
+        options = {
+          -- Display the source of the diagnostic (e.g., basedpyright, vsserver, lua_ls etc.)
+          show_source = {
+            enabled = true,
+            -- Show source only when multiple sources exist for the same diagnostic
+            if_many = true,
+          },
+
+          -- Configuration for multiline diagnostics
+          -- Can be a boolean or a table with detailed options
+          multilines = {
+            -- Enable multiline diagnostic messages
+            enabled = true,
+
+            -- Always show messages on all lines for multiline diagnostics
+            always_show = false,
+          },
+
+          -- Display all diagnostic messages on the cursor line, not just those under cursor
+          show_all_diags_on_cursorline = true,
+
+          -- Enable diagnostics in Insert mode
+          -- If enabled, consider setting throttle to 0 to avoid visual artifacts
+          enable_on_insert = true,
+
+          -- Enable diagnostics in Select mode (e.g., when auto-completing with Blink)
+          enable_on_select = false,
+        },
+      }
+      vim.diagnostic.config { virtual_text = false } -- Disable default virtual text
+    end,
   },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
