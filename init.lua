@@ -154,7 +154,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 7
 
 -- Disable line wrapping
 vim.wo.wrap = true
@@ -204,6 +204,9 @@ vim.keymap.set('i', '<F3>', '<ESC>:w<CR>a')
 vim.keymap.set('n', '<C-6>', '<C-^>', { desc = 'Go to previous buffer' })
 vim.keymap.set('n', '<C-y>', '<C-^>', { desc = 'Go to previous buffer' })
 
+-- TODO: Make delete previous word using alt key work
+vim.keymap.set('i', 'M-BS', '<C-o>db', { desc = 'Delete previous word' })
+vim.keymap.set('i', 'M-Del', '<C-o>dw', { desc = 'Delete next word' })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -1201,11 +1204,61 @@ require('lazy').setup({
     init = function()
       -- Optional: custom keymaps
       vim.g.VM_leader = '\\'
+      -- vim.g.VM_user_operators = 'viw'
       -- Custom keybindings
-      -- vim.g.VM_maps = {
-      --   ['Add Cursor Down'] = 'C-j', -- instead of <C-Down>
-      --   ['Add Cursor Up'] = 'C-l', -- instead of <C-Up>
+      -- vim.g.VM_maps = vim.g.VM_maps or {}
+      -- vim.g.VM_maps['Select'] = 'v'
+      -- Ensure VM_maps exists as a dictionary
+
+      -- vim.api.nvim_set_keymap('n', 'viw', '<Plug>(VM-Select-Operator)iw', {})
+      --
+      --
+      -- local vm_mappings = {
+      --   'iw',
+      --   'aw',
+      --   'e',
+      --   'w',
+      --   'b',
+      --   'ge',
+      --   -- 'ae', 'ib', 'ab', 'ig', 'ag', 'iblock', 'ablock', 'iB', 'aB'
       -- }
+      --
+      -- local cmds = {}
+      -- for _, obj in ipairs(vm_mappings) do
+      --   -- map viX → VM operator with motion X
+      --   table.insert(cmds, string.format('nnoremap <buffer> v%s <Plug>(VM-Select-Operator)%s', obj, obj))
+      -- end
+      -- local cmd_str = table.concat(cmds, '\n')
+      --
+      -- vim.cmd(string.format(
+      --   [[
+      --   augroup VMCustom
+      --     autocmd!
+      --     " Setup buffer-local VM mappings on visual-multi start
+      --     autocmd User visual_multi_start ++nested
+      --       \ %s
+      --
+      --     " Remove buffer-local mappings on VM exit
+      --     autocmd User visual_multi_exit ++nested
+      --       \ silent! nunmap <buffer> viw
+      --       \ silent! nunmap <buffer> vaw
+      --       \ silent! nunmap <buffer> ve
+      --       \ silent! nunmap <buffer> vw
+      --       \ silent! nunmap <buffer> vb
+      --       \ silent! nunmap <buffer> vge
+      --   augroup END
+      -- ]],
+      --   cmd_str
+      -- ))
+      --     \ silent! nunmap <buffer> vae
+      --   \ silent! nunmap <buffer> vib
+      --     \ silent! nunmap <buffer> vab
+      --   \ silent! nunmap <buffer> vig
+      --     \ silent! nunmap <buffer> vag
+      --   \ silent! nunmap <buffer> viblock
+      --     \ silent! nunmap <buffer> vablock
+      --   \ silent! nunmap <buffer> viB
+      --     \ silent! nunmap <buffer> vaB
     end,
     config = function()
       -- vim.keymap.set('v', '<C-k>', '<Plug>(VM-Add-Cursor-Up)')
@@ -1213,6 +1266,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<C-j>', '<Plug>(VM-Add-Cursor-Down)')
       vim.keymap.set('n', '<C-k>', '<Plug>(VM-Add-Cursor-Up)')
       vim.keymap.set('n', '<C-k>', '<Plug>(VM-Add-Cursor-At-Pos)')
+      -- vim.keymap.set('n', '<viw>', '<Plug>(VM-Select-Operator)iw')
     end,
   },
   --
