@@ -1318,23 +1318,55 @@ require('lazy').setup({
   },
 })
 
+local cmp = require 'cmp'
+local luasnip = require 'luasnip'
+
 local function has_words_before()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
+  if col == 0 then
+    return false
+  end
+  local text = vim.api.nvim_get_current_line()
+  return text:sub(col, col):match '%s' == nil
 end
-local luasnip = require 'luasnip'
+-- Send real keys into Neovim
+local function send(keys)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, true, true), 'n', true)
+end
+
+-- TAB
 vim.keymap.set({ 'i', 's' }, '<Tab>', function(fallback)
-  if luasnip.expand_or_jumpable() then
-    -- expand snippet first, even without completion menu
+  if cmp.visible() then
+    cmp.select_next_item()
+  elseif luasnip.expand_or_jumpable() then
     luasnip.expand_or_jump()
-  elseif require('cmp').visible() then
-    require('cmp').select_next_item()
   elseif has_words_before() then
-    require('cmp').complete()
+    cmp.complete()
   else
-    fallback()
+    if fallback then
+      fallback() -- insert literal tab (insert-mode)
+    else
+      send '<Tab>' -- insert literal tab (select-mode / no fallback)
+    end
   end
 end, { silent = true })
 
+-- SHIFT-TAB
+vim.keymap.set({ 'i', 's' }, '<S-Tab>', function(fallback)
+  if cmp.visible() then
+    cmp.select_prev_item()
+  elseif luasnip.jumpable(-1) then
+    luasnip.jump(-1)
+  else
+    if fallback then
+      fallback()
+    else
+      send '<S-Tab>'
+    end
+  end
+end, { silent = true })
+-- VISUAL INDENT
+vim.keymap.set('v', '<Tab>', '>gv', { silent = true })
+vim.keymap.set('v', '<S-Tab>', '<gv', { silent = true })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
