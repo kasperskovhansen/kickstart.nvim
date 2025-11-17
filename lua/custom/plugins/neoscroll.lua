@@ -3,10 +3,10 @@ return {
   opts = {
     -- EXCLUDE all custom-handled mappings from defaults
     mappings = {
-      '<C-b>',
-      '<C-f>',
-      '<C-y>',
-      '<C-e>',
+      -- '<C-b>',
+      -- '<C-f>',
+      -- '<C-y>',
+      -- '<C-e>',
     },
     hide_cursor = true,
     stop_eof = true,

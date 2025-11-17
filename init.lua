@@ -162,6 +162,8 @@ vim.wo.linebreak = true
 
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2 -- Number of spaces when pressing <Tab> or <BS>
+vim.opt.expandtab = true -- Convert tabs to spaces
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -284,11 +286,24 @@ end, { desc = 'Toggle diagnostics' })
 --
 --  To update plugins you can run
 --    :Lazy update
---
+vim.filetype.add { extension = { p8 = 'pico8' } }
+vim.api.nvim_create_autocmd({ 'BufNew', 'BufEnter' }, {
+  pattern = { '*.p8' },
+  callback = function(args)
+    vim.lsp.start {
+      name = 'pico8-ls',
+      cmd = { 'pico8-ls', '--stdio' },
+      root_dir = vim.fs.dirname(vim.api.nvim_buf_get_name(args.buf)),
+      -- Setup your keybinds in the on_attach function
+      on_attach = on_attach,
+    }
+  end,
+})
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  'Bakudankun/PICO-8.vim',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -368,7 +383,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -414,7 +429,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -453,7 +468,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -565,7 +580,7 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -752,6 +767,12 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        pico8_ls = {
+
+          filetypes = { 'pico8', 'p8' },
+          cmd = { '~/.local/pico8-ls', '--stdio' },
+          settings = {},
+        },
 
         lua_ls = {
           -- cmd = { ... },
@@ -1177,6 +1198,7 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
     },
   },
+
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
