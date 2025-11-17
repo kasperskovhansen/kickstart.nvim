@@ -1,0 +1,95 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# zmodload zsh/zprof # Uncomment to profile startup time (remember the last line of this file which should be `zprof`)
+
+# Path setup
+export PATH="/opt/homebrew/bin:$HOME/bin:/usr/local/bin:$PNPM_HOME:$(go env GOPATH)/bin:/opt/homebrew/opt/postgresql@16/bin:$PATH:~/.local/bin"
+
+# Oh-My-Zsh
+export ZSH="$HOME/.oh-my-zsh"
+source ~/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme
+plugins=(zsh-vi-mode git fzf zsh-autosuggestions fzf-tab nvm)
+zstyle ':omz:plugins:nvm' lazy yes # nvm will only be loaded when you actually use it (it is slow)
+source $ZSH/oh-my-zsh.sh
+
+# Plugin Initialization
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+source ~/.oh-my-zsh/custom/plugins/zsh-interactive-cd/zsh-interactive-cd.plugin.zsh
+
+# # NVM (Optimized)
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
+
+# Conda (Disable Auto Activation)
+export CONDA_AUTO_ACTIVATE_BASE=false
+if [ -f "/Users/kasperhansen/miniconda3/etc/profile.d/conda.sh" ]; then
+    . "/Users/kasperhansen/miniconda3/etc/profile.d/conda.sh"
+fi
+
+# Zoxide (fast directory navigation)
+eval "$(zoxide init zsh)"
+
+# Keybindings
+bindkey '^E' end-of-line
+
+# Default Editor
+export VISUAL='/Users/kasperhansen/code-wait'
+
+# pnpm
+export PNPM_HOME="/Users/kasperhansen/Library/pnpm"
+
+# zprof
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+# Functions (ComArch)
+function compile_and_run() {
+  gcc -Wall $1.c -o $1 && ./$1
+}
+
+# My Aliases
+alias comarch='cd ~/code/datalogi/4-semester/COMARC/'
+alias bias='cd /Users/kasperhansen/code/datalogi/other-repos/exsys/bias-project'
+alias au='cd ~/Library/Mobile\ Documents/iCloud\~md\~obsidian/Documents/KnowledgeVault/AU/'
+alias other='cd ~/code/datalogi/other-repos/'
+alias dissys='cd ~/code/datalogi/other-repos/dissys/dissys25/'
+alias dovs='cd ~/code/datalogi/other-repos/dovs25/'
+alias ml='cd ~/code/datalogi/other-repos/ML25/'
+alias zshrc='nvim ~/.zshrc'
+alias initlua='nvim ~/.config/nvim/init.lua'
+alias gitac='git add . && commit_msg="" && vared -p "Enter commit message: " commit_msg && git commit -m "$commit_msg"'
+alias cwd='printf "%q\n" "$(pwd)" | pbcopy'
+alias 'git log'='git --no-pager log --graph --oneline --parents'
+git() {
+    if [ "$1" = "log" ]
+    then
+        command git --no-pager log --graph --oneline --parents --decorate "${@:2}";
+    else
+        command git "$@";
+    fi;
+}
+
+
+# Using VIM motions
+# bindkey -v
+
+
+# BEGIN opam configuration
+# This is useful if you're using opam as it adds:
+#   - the correct directories to the PATH
+#   - auto-completion for the opam binary
+# This section can be safely removed at any time if needed.
+[[ ! -r '/Users/kasperhansen/.opam/opam-init/init.zsh' ]] || source '/Users/kasperhansen/.opam/opam-init/init.zsh' > /dev/null 2> /dev/null
+# END opam configuration
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
