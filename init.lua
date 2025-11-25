@@ -206,10 +206,7 @@ vim.keymap.set('i', '<F3>', '<ESC>:w<CR>a')
 vim.keymap.set('n', '<C-6>', '<C-^>', { desc = 'Go to previous buffer' })
 vim.keymap.set('n', '<C-y>', '<C-^>', { desc = 'Go to previous buffer' })
 
--- TODO: Make delete previous word using alt key work
--- vim.keymap.set('i', 'M-BS', '<C-o>db', { desc = 'Delete previous word' })
--- vim.keymap.set('i', 'M-Del', '<C-o>dw', { desc = 'Delete next word' })
--- vim.keymap.set('i', '<Esc>d', '<C-o>db', { desc = 'Delete previous word' })
+-- TODO: Make delete previous word using alt key work. Keys are remapped in iterm2
 vim.keymap.set('i', '<C-_>', '<C-o>dw', { desc = 'Delete next word' })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
